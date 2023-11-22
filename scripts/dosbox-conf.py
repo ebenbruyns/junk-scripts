@@ -5,19 +5,13 @@ import json
 import argparse
 import configparser
 import os
-import shutil
 import sqlite3
 import sys
 import xml.etree.ElementTree as ET
-import glob
-
 from typing import List
-import zipfile
-import chardet
-import subprocess
-
 import database
 import urllib.parse
+
 cols = database.cols
 
 
@@ -140,8 +134,11 @@ def find_option(section, key):
 
 
 def get_config_json(shortnames, forkname, version, platform, db_file):
-    config_data = load_conf_data_from_json(os.path.expanduser(
-        '~/homebrew/plugins/Junk-Store/staging_conf.json'))
+    config_data = load_conf_data_from_json(
+        os.path.expanduser(
+            os.path.join(
+                os.environ.get('$DECKY_PLUGIN_RUNTIME_DIR', ""),
+                'dosbox-conf/staging_conf.json')))
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
 
@@ -324,12 +321,12 @@ def get_editors(db_file, shortname):
     c.execute("SELECT ID FROM Game WHERE ShortName=?", (shortname,))
     game_id = c.fetchone()[0]
     editors = []
-    if game_id:
-        editors = [{'Type': 'IniEditor',
-                    'InitActionId': 'GetRunnerConfigActions',
-                    'Title': 'Runner',
-                    'Description': 'Configures the runner to use with the launcher',
-                    'ContentId': shortname}]
+    # if game_id:
+    #     editors = [{'Type': 'IniEditor',
+    #                 'InitActionId': 'GetRunnerConfigActions',
+    #                 'Title': 'Runner',
+    #                 'Description': 'Configures the runner to use with the launcher',
+    #                 'ContentId': shortname}]
     c.execute("SELECT ID FROM Config_Set WHERE ShortName=?", (shortname,))
     config_set_id = c.fetchone()
     if config_set_id:
@@ -507,7 +504,8 @@ def get_lauch_options(options, db_file):
             {
                 'Exe': options[0],
                 'Options': options[1],
-                'WorkingDir': options[2]
+                'WorkingDir': options[2],
+                'Name': options[3]
             }
         })
 
@@ -578,6 +576,35 @@ def get_last_progress_update(file_path):
     return json.dumps({'Type': 'ProgressUpdate', 'Content': last_progress_update})
 
 
+def get_setting(db_file, name):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    c.execute("SELECT value FROM Settings WHERE name=?", (name,))
+    result = c.fetchone()
+    conn.close()
+    if result:
+        return json.dumps({'Type': 'Setting', 'Content': {'name': name, 'value': result[0]}})
+    else:
+        return json.dumps({'Type': 'Setting', 'Content': {'name': name, 'value': ''}})
+
+
+def save_setting(db_file, name, value):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM Settings WHERE name=?",
+              (name,))
+    result = c.fetchone()
+    if result[0] == 0:
+        c.execute("INSERT INTO Settings (name, value) VALUES (?, ?)",
+                  (name, value))
+    else:
+        c.execute("UPDATE Settings SET value=? WHERE name=?",
+                  (value, name))
+    conn.commit()
+    conn.close()
+    return json.dumps({'Type': 'Success', 'Content': {'success': True}})
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -611,7 +638,7 @@ def main():
         '--getzip', help='Get zip file for shortname'
     )
     parser.add_argument(
-        '--launchoptions', nargs=3, help='Launch options'
+        '--launchoptions', nargs=4, help='Launch options'
     )
     parser.add_argument(
         '--writebatfiles', help='Write bat files'
@@ -623,6 +650,12 @@ def main():
         '--getprogress', help='Get installtion progress for game')
     parser.add_argument(
         '--urlencode', help='Url encode string', action='store_true')
+    parser.add_argument(
+        '--getsetting', help='Get setting'
+    )
+    parser.add_argument(
+        '--savesetting', nargs=2, help='Save setting'
+    )
 
     args = parser.parse_args()
     database.create_tables(args.dbfile)
@@ -676,6 +709,11 @@ def main():
         print(get_json_bat_files(args.dbfile, args.getjsonbats))
     if args.getprogress:
         print(get_last_progress_update(args.getprogress))
+    if args.getsetting:
+        print(get_setting(args.dbfile, args.getsetting))
+    if args.savesetting:
+        print(save_setting(args.dbfile,
+              args.savesetting[0], args.savesetting[1]))
     if not any(vars(args).values()):
         parser.print_help()
 

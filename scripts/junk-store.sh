@@ -1,5 +1,5 @@
 #!/bin/bash
-source "${HOME}/bin/settings.sh"
+source "${DECKY_PLUGIN_RUNTIME_DIR}/scripts/settings.sh"
 
 
 function init() {
@@ -130,15 +130,18 @@ function install(){
     rm $PROGRESS_LOG
     case $PLATFORM in
         Epic)
+            PROGRESS_LOG="${DECKY_PLUGIN_LOG_DIR}/${1}.progress"
+            rm $PROGRESS_LOG
+
             RESULT=$($DOSCONF --addsteamclientid "${1}" "${2}" --dbfile $DBFILE)
-            WORKING_DIR=$($EPICCONF --get-working-dir "${1}")
-            mkdir -p "${HOME}/.compat/${1}"
-            TEMP=$($DOSCONF --launchoptions $LAUNCHER "${1}" "${WORKING_DIR}" --dbfile $DBFILE)
+            #WORKING_DIR=$($EPICCONF --get-working-dir "${1}")
+            #mkdir -p "${HOME}/.compat/${1}"
+            TEMP=$($EPICCONF --launchoptions "${1}" "${ARGS_SCRIPT}" "" --dbfile $DBFILE)
             echo $TEMP
             exit 0
             ;;
         *)
-            REUSLT=$($DOSCONF --addsteamclientid "${1}" "${2}" --dbfile $DBFILE)
+            REUSLT=$($DOSCONF --addsteamclientid "${1}" "${2}" "" --dbfile $DBFILE)
             ZIPFILE=$($DOSCONF --getzip "${1}" --dbfile $DBFILE)
             mkdir -p "${INSTALL_DIR}"
             cd "${INSTALL_DIR}"
@@ -160,13 +163,11 @@ function install(){
                     ;;
             esac
             find "${INSTALL_DIR}" -name CHOICE.EXE -type f -delete 
-            TEMP=$($DOSCONF --launchoptions "${LAUNCHER}" "${1}" "${INSTALL_DIR}" --dbfile $DBFILE)
+            TEMP=$($DOSCONF --launchoptions "${LAUNCHER}" "${1}" "${INSTALL_DIR}" "" --dbfile $DBFILE)
             echo $TEMP
             exit 0
      ;;
     esac
-   # echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Installing\"}}"
-
 }
 
 function uninstall(){
@@ -234,6 +235,29 @@ function getprogress()
             ;;
     esac
 }
+function loginstatus(){
+    TEMP=$($EPICCONF --getloginstatus --dbfile $DBFILE)
+    echo $TEMP
+
+}
+function login(){
+    #TEMP=$($LEGENDARY auth)
+    TEMP=$($DOSCONF --launchoptions "/bin/flatpak" "run com.github.derrod.legendary auth" "" "Epic Games Login" --dbfile $DBFILE)
+    echo $TEMP
+}
+
+function logout(){
+    TEMP=$($LEGENDARY auth --delete)
+    loginstatus
+}
+
+function getsetting(){
+    TEMP=$($DOSCONF --getsetting $1 --dbfile $DBFILE)
+    echo $TEMP
+}
+function savesetting(){
+    $DOSCONF --savesetting $1 $2 --dbfile $DBFILE
+}   
 
 ACTION=$1
 shift
@@ -279,7 +303,22 @@ case $ACTION in
     getprogress)
         getprogress "${@}"
         ;;
-     *)
+    login)
+        login "${@}"
+        ;;
+    logout)
+        logout "${@}"
+        ;;
+    loginstatus)
+        loginstatus "${@}"
+        ;;
+    getsetting)
+        getsetting "${@}"
+        ;;
+    savesetting)
+        savesetting "${@}"
+        ;; 
+    *)
         echo "Unknown command: ${ACTION}"
         exit 1
         ;;

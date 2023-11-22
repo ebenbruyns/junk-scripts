@@ -16,8 +16,12 @@ import chardet
 import subprocess
 import time
 import database
+import re
+
 
 cols = database.cols
+
+legendary_cmd = "/bin/flatpak run com.github.derrod.legendary"
 
 
 def execute_shell(cmd):
@@ -33,14 +37,46 @@ def execute_shell(cmd):
 
 def get_list(db_file):
     games_list = execute_shell(os.path.expanduser(
-        "~/miniconda3/bin/legendary list --json"))
+        f"{legendary_cmd} list --json"))
     insert_data(db_file, games_list)
 
 
 def get_working_dir(game_id):
     result = execute_shell(os.path.expanduser(
-        f"~/miniconda3/bin/legendary launch {game_id} --json"))
+        f"{legendary_cmd} launch {game_id} --json"))
     print(result['working_directory'])
+
+
+def get_login_status():
+    result = execute_shell(os.path.expanduser(
+        f"{legendary_cmd} status --json"))
+    account = result['account']
+    logged_in = account != '<not logged in>'
+    return json.dumps({'Type': 'LoginStatus', 'Content': {'Username': account, 'LoggedIn': logged_in}})
+
+
+def get_parameters(game_id):
+    result = execute_shell(os.path.expanduser(
+        f"/bin/flatpak run com.github.derrod.legendary launch {game_id} --json"))
+    args = " ".join(result['egl_parameters'])
+    return args
+
+
+def get_lauch_options(game_id, args_script, name):
+    result = execute_shell(os.path.expanduser(
+        f"/bin/flatpak run com.github.derrod.legendary launch {game_id} --json"))
+    return json.dumps(
+        {
+            'Type': 'LaunchOptions',
+            'Content':
+            {
+                'Exe': f"\"{result['game_executable']}\"",
+                'Options': f"$({args_script} {game_id})",
+                'WorkingDir': result['working_directory'],
+                'Compatibility': True,
+                'Name': name
+            }
+        })
 
 
 def insert_data(db_file, games_list):
@@ -145,6 +181,16 @@ def get_last_progress_update(file_path):
     return json.dumps({'Type': 'ProgressUpdate', 'Content': last_progress_update})
 
 
+def get_proton_command(cmd):
+    match = re.search(r'waitforexitandrun -- (.*?) waitforexitandrun', cmd)
+    if match:
+        proton_cmd = match.group(1)
+        sanitized_path = proton_cmd.replace('"', '').replace('\'', '')
+        return sanitized_path
+    else:
+        return ""
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -155,6 +201,14 @@ def main():
         '--get-working-dir', help='Get working directory for game')
     parser.add_argument(
         '--getprogress', help='Get installtion progress for game')
+    parser.add_argument(
+        '--get-proton', help='Get proton command')
+    parser.add_argument(
+        '--get-args', help='Get proton command')
+    parser.add_argument(
+        '--launchoptions', nargs=3, help='Get launch options')
+    parser.add_argument(
+        '--getloginstatus', help='Get login status', action='store_true')
 
     database.create_tables(parser.parse_args().dbfile)
     args = parser.parse_args()
@@ -164,6 +218,15 @@ def main():
         get_working_dir(args.get_working_dir)
     if args.getprogress:
         print(get_last_progress_update(args.getprogress))
+    if args.get_proton:
+        print(get_proton_command(args.get_proton))
+    if args.get_args:
+        print(get_parameters(args.get_args))
+    if args.launchoptions:
+        print(get_lauch_options(
+            args.launchoptions[0], args.launchoptions[1], args.launchoptions[2]))
+    if args.getloginstatus:
+        print(get_login_status())
     if not any(vars(args).values()):
         parser.print_help()
 

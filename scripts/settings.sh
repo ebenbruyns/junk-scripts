@@ -7,33 +7,34 @@ HOSTTYPE=deck
 # add miniconda to path
 PATH=$HOME/miniconda3/bin:$PATH
 # the path to the dosbox-conf.py script
-DOSCONF="${HOME}/bin/dosbox-conf.py"
-EPICCONF="${HOME}/bin/epic-config.py"
-EPICDB="${HOME}/epic.db"
+DOSCONF="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/dosbox-conf.py"
+EPICCONF="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/epic-config.py"
+EPICDB="${DECKY_PLUGIN_RUNTIME_DIR}/epic.db"
 BASE_PATH="Games/exo"
 ASSETS_PATH="assets/exo"
-LEGENDARY="${HOME}/miniconda3/bin/legendary"
-WRAPPER="${HOME}/.local/share/Steam/steamapps/common/Proton\ -\ Experimental/proton run"
-case $1 in
+#LEGENDARY="${HOME}/miniconda3/bin/legendary"
+valid_platforms=("Dos" "Windows" "Epic")
+if [[ " ${valid_platforms[@]} " =~ " $1 " ]]; then
+    PLATFORM=$1
+    shift
+fi
+    
+case $PLATFORM in
     Dos)
-        PLATFORM=$1
-        shift
         # the install location of the games
-        INSTALL_DIR="$HOME/Games/sdos/"
+        INSTALL_DIR="${HOME}/Games/sdos/"
         # the launcher script to use in steam
-        LAUNCHER="${HOME}/bin/run_dosbox.sh"
+        LAUNCHER="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/run_dosbox.sh"
         IMAGES="Images/MS-DOS"
         ZIPS="eXoDOS/eXo/eXoDOS"
         SETNAME="eXoDOS"
-        DBNAME="configs.db"
+        DBNAME="dosconfigs.db"
         ;;
     Windows)
-        PLATFORM=$1
-        shift
         # the install location of the games
         INSTALL_DIR="$HOME/Games/swin/"
         # the launcher script to use in steam
-        LAUNCHER="${HOME}/bin/run_win_dosbox.sh"
+        LAUNCHER="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/run_win_dosbox.sh"
         ASSETS_PATH="assets/exo"
         IMAGES="Images/Windows 3x"
         ZIPS="eXoWin3x/eXo/eXoWin3x"
@@ -41,12 +42,11 @@ case $1 in
         DBNAME="winconfigs.db"
         ;;
     Epic)
-        PLATFORM=$1
-        shift
         # the install location of the games
-         INSTALL_DIR="$HOME/Games/epic/"
+         INSTALL_DIR="${HOME}/Games/epic/"
         # the launcher script to use in steam
-        LAUNCHER="${HOME}/bin/run-epic.sh"
+        LEGENDARY="/bin/flatpak run com.github.derrod.legendary"
+        LAUNCHER=""
         ASSETS_PATH=""
         IMAGES=""
         ZIPS=""
@@ -58,13 +58,13 @@ esac
 
 case $HOSTTYPE in
     deck)
-        DBPATH="$HOME"
-        DOSCONF="${HOME}/bin/dosbox-conf.py"
+        DBPATH="${DECKY_PLUGIN_RUNTIME_DIR}"
+        DOSCONF="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/dosbox-conf.py"
         DOSBOX="/bin/flatpak run io.github.dosbox-staging"
         ;;
     *)
-        DBPATH="${HOME}"
-        DOSCONF="${HOME}/bin/dosbox-conf.py"
+        DBPATH="${DECKY_PLUGIN_RUNTIME_DIR}"
+        DOSCONF="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/dosbox-conf.py"
         DOSBOX="/usr/bin/dosbox-staging"
         ;;
 esac
