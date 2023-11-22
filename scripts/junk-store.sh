@@ -34,15 +34,15 @@ function getgames(){
         archive)
             case $PLATFORM in
                 Epic)
-                    TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" --dbfile $DBFILE)
+                    TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" "${NEEDSLOGIN}" --dbfile $DBFILE)
                     ;;
                 *)
-                TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" --dbfile $DBFILE --urlencode)
+                TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" "${NEEDSLOGIN}" --dbfile $DBFILE --urlencode)
                 ;;
             esac
             ;;
         *)
-             TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" --dbfile $DBFILE)
+             TEMP=$($DOSCONF --getgameswithimages "${IMAGE_PATH}" "${FILTER}" "${INSTALLED}" "${LIMIT}" "${NEEDSLOGIN}" --dbfile $DBFILE)
             ;;
     esac
    
