@@ -1,0 +1,14 @@
+[
+  {
+    "Id": "init",
+    "Title": "Store",
+    "Type": "Init",
+    "Command": "~/bin/junk-store.sh init"
+  },
+  {
+    "Id": "InitActions",
+    "Title": "Store",
+    "Type": "Init",
+    "Command": "~/bin/get-json.sh main-menu-actions"
+  }
+]
