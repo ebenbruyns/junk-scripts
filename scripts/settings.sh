@@ -29,6 +29,7 @@ case $PLATFORM in
         ZIPS="eXoDOS/eXo/eXoDOS"
         SETNAME="eXoDOS"
         DBNAME="dosconfigs.db"
+        NEEDSLOGIN="false"
         ;;
     Windows)
         # the install location of the games
@@ -40,6 +41,7 @@ case $PLATFORM in
         ZIPS="eXoWin3x/eXo/eXoWin3x"
         SETNAME="eXoWin3x"
         DBNAME="winconfigs.db"
+        NEEDSLOGIN="false"
         ;;
     Epic)
         # the install location of the games
@@ -52,6 +54,7 @@ case $PLATFORM in
         ZIPS=""
         SETNAME=""
         DBNAME="epic.db"
+        NEEDSLOGIN="true"
         ;;
 esac
 

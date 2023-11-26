@@ -94,22 +94,24 @@ json_fragments = {
                             "ActionId": "JunkStoreInit",
                             "Title": "Junk's Store",
                             "Type": "Page"
-                        },
-                        {
-                            "ActionId": "SideBarPageInit",
-                            "Title": "Side bar page",
-                            "Type": "Page"
                         }
-                    ]
-                },
-                {
-                    "Title": "DOS",
-                    "Type": "Section",
-                    "Actions": [
-                        {"ActionId": "dos-store",
-                            "Title": "User's Store", "Type": "Page"}
+                        # ,
+                        # {
+                        #     "ActionId": "SideBarPageInit",
+                        #     "Title": "Side bar page",
+                        #     "Type": "Page"
+                        # }
                     ]
                 }
+                # ,
+                # {
+                #     "Title": "DOS",
+                #     "Type": "Section",
+                #     "Actions": [
+                #         {"ActionId": "dos-store",
+                #             "Title": "User's Store", "Type": "Page"}
+                #     ]
+                # }
             ]
         }
     },

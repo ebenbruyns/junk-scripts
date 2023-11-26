@@ -226,7 +226,7 @@ function getprogress()
 {
     case $PLATFORM in
         Epic)
-            TEMP=$($EPICCONF --getprogress "${DECKY_PLUGIN_LOG_DIR}/${1}.progress")
+            TEMP=$($EPICCONF --getprogress "${DECKY_PLUGIN_LOG_DIR}/${1}.progress"  --dbfile $DBFILE)
             echo $TEMP
             ;;
         *)
