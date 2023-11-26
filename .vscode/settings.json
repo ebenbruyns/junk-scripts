@@ -1,0 +1,3 @@
+{
+  "python.analysis.extraPaths": ["decky-loader/plugin", "./scripts"]
+}
