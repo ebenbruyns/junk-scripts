@@ -124,6 +124,22 @@ function download(){
     echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Downloading\"}}"
 
 }
+function getlaunchoptions(){
+    case $PLATFORM in
+        Epic)
+            ARGS=$($ARGS_SCRIPT "${1}")
+            TEMP=$($EPICCONF --launchoptions "${1}" "${ARGS}" "" --dbfile $DBFILE)
+            echo $TEMP
+            exit 0
+            ;;
+        *)
+            TEMP=$($DOSCONF --launchoptions "${LAUNCHER}" "${1}" "${INSTALL_DIR}" "" --dbfile $DBFILE)
+            echo $TEMP
+            exit 0
+            ;;
+    esac
+    
+}
 
 function install(){
     PROGRESS_LOG="${DECKY_PLUGIN_LOG_DIR}/${1}.progress"
@@ -136,7 +152,8 @@ function install(){
             RESULT=$($DOSCONF --addsteamclientid "${1}" "${2}" --dbfile $DBFILE)
             #WORKING_DIR=$($EPICCONF --get-working-dir "${1}")
             #mkdir -p "${HOME}/.compat/${1}"
-            TEMP=$($EPICCONF --launchoptions "${1}" "${ARGS_SCRIPT}" "" --dbfile $DBFILE)
+            ARGS=$($ARGS_SCRIPT "${1}")
+            TEMP=$($EPICCONF --launchoptions "${1}" "${ARGS}" "" --dbfile $DBFILE)
             echo $TEMP
             exit 0
             ;;

@@ -47,7 +47,8 @@ case $PLATFORM in
         # the install location of the games
          INSTALL_DIR="${HOME}/Games/epic/"
         # the launcher script to use in steam
-        LEGENDARY="/bin/flatpak run com.github.derrod.legendary"
+        #LEGENDARY="/bin/flatpak run com.github.derrod.legendary"
+        ARGS_SCRIPT="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/get-epic-args.sh"
         LAUNCHER=""
         ASSETS_PATH=""
         IMAGES=""

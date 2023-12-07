@@ -235,6 +235,12 @@ json_fragments = {
                     "Title": "Get dosbox config file actions",
                     "Type": "Init",
                     "Command": "./scripts/get-json.py windows-bat-actions"
+                },
+                {
+                    "id": "GetLaunchOptions",
+                    "Title": "Get launch options",
+                    "Type": "GetLaunchOptions",
+                    "Command": "./scripts/junk-store.sh getlaunchoptions"
                 }
             ]
         }
