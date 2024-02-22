@@ -1,0 +1,251 @@
+{
+  "junk-store-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "JunkStoreActions",
+      "Actions": [
+        {
+          "Id": "GetWindowsActions",
+          "Title": "Windows games actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py windows-actions"
+        }
+      ]
+    }
+  },
+  "junk-store-tabs": {
+    "Type": "StoreTabs",
+    "Content": {
+      "Tabs": [
+        {
+          "Title": "Windows 3.x",
+          "Type": "GameGrid",
+          "ActionId": "GetWindowsActions"
+        }
+      ]
+    }
+  },
+  "windows-game-script-actions": {
+    "Type": "ScriptSet",
+    "Content": {
+      "Actions": []
+    }
+  },
+  "windows-script-actions": {
+    "Type": "ScriptSet",
+    "Content": {
+      "Actions": [
+        {
+          "ActionId": "Refresh",
+          "Title": "Refresh Games List",
+          "Type": "ScriptAction",
+          "InstalledOnly": "False"
+        }
+      ]
+    }
+  },
+  "windows-exe-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsExeActions",
+      "Actions": [
+        {
+          "Id": "RunBinary",
+          "Title": "Run executable in game folder",
+          "Type": "ScriptAction",
+          "Command": "./scripts/junk-store.sh Windows run-exe"
+        },
+        {
+          "Id": "GetContent",
+          "Title": "Get executable list",
+          "Type": "Content",
+          "Command": "./scripts/junk-store.sh Windows get-exe-list"
+        }
+      ]
+    }
+  },
+  "windows-tab-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsTabConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the ini files as json",
+          "Type": "IniEditor",
+          "Command": "./scripts/junk-store.sh Windows gettabconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the ini files as json",
+          "Type": "IniEditor",
+          "Command": "./scripts/junk-store.sh Windows savetabconfig"
+        }
+      ]
+    }
+  },
+  "windows-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsActions",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get Windows games list",
+          "Type": "GameGrid",
+          "Command": "./scripts/junk-store.sh Windows getgames"
+        },
+        {
+          "Id": "GetDetails",
+          "Title": "Get game details",
+          "Type": "GameDetails",
+          "Command": "./scripts/junk-store.sh Windows getgamedetails"
+        },
+        {
+          "Id": "GetJsonImages",
+          "Title": "Get game images as json",
+          "Type": "GameImages",
+          "Command": "./scripts/junk-store.sh Windows getjsonimages"
+        },
+        {
+          "Id": "Install",
+          "Title": "Install game",
+          "Type": "Install",
+          "Command": "./scripts/junk-store.sh Windows install"
+        },
+        {
+          "Id": "Download",
+          "Title": "Download game",
+          "Type": "Download",
+          "Command": "./scripts/junk-store.sh Windows download"
+        },
+        {
+          "Id": "Uninstall",
+          "Title": "Uninstall game",
+          "Type": "Uninstall",
+          "Command": "./scripts/junk-store.sh Windows uninstall"
+        },
+        {
+          "Id": "GetProgress",
+          "Title": "Get install progress",
+          "Type": "GetProgress",
+          "Command": "./scripts/junk-store.sh Windows getprogress"
+        },
+        {
+          "Id": "GetLaunchOptions",
+          "Title": "Get launch options",
+          "Type": "GetLaunchOptions",
+          "Command": "./scripts/junk-store.sh Windows getlaunchoptions"
+        },
+        {
+          "Id": "CancelInstall",
+          "Title": "Cancel install",
+          "Type": "CancelInstall",
+          "Command": "./scripts/junk-store.sh Windows cancelinstall"
+        },
+        {
+          "Id": "GetExeActions",
+          "Title": "Get executable action set to run exe's in game dir",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py windows-exe-actions"
+        },
+        {
+          "Id": "GetGameScriptActions",
+          "Title": "",
+          "Type": "ScriptActions",
+          "Command": "./scripts/get-json.py windows-game-script-actions"
+        },
+        {
+          "Id": "GetScriptActions",
+          "Title": "",
+          "Type": "ScriptActions",
+          "Command": "./scripts/get-json.py windows-script-actions"
+        },
+        {
+          "Id": "GetDosboxConfigFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py windows-config-actions"
+        },
+        {
+          "Id": "GetPlatformConfigFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py windows-platform-config-actions"
+        },
+        {
+          "Id": "GetBatFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py windows-bat-actions"
+        },
+        {
+          "Id": "GetLaunchOptions",
+          "Title": "Get launch options",
+          "Type": "GetLaunchOptions",
+          "Command": "./scripts/junk-store.sh Windows getlaunchoptions"
+        }
+      ]
+    }
+  },
+  "windows-bat-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsBatEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows getbats"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows savebats"
+        }
+      ]
+    }
+  },
+  "windows-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the config as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows getconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the json config",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows saveconfig"
+        }
+      ]
+    }
+  },
+  "windows-platform-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "WindowsPlatformConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the config as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows getplatformconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the json config",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Windows saveplatformconfig"
+        }
+      ]
+    }
+  }
+}

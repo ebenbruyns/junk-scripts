@@ -12,8 +12,7 @@ else
     flatpak --user install flathub org.gnome.Platform//45 -y
     wget https://github.com/ebenbruyns/legendary-flatpak/releases/download/Test-0.2/legendary.flatpak
     flatpak --user install legendary.flatpak -y
-    rm legendary.flatpak
-fi
+    rm legendary.flatpakfi
 
 if flatpak list | grep -q "io.github.dosbox-staging"; then
     echo "dosbox-staging flatpak is installed"

@@ -3115,5 +3115,6 @@
       ]
     }
   ],
-  "Autoexec": "\n@mount c ./eXoDOS/\nimgmount d \"./eXoDOS/inca1/cd/Inca I.cue\" -t cdrom\n@c:\ncls\n@cd inca1\n#@call inca.bat\n#exit\n\n@mount c ./eXoDOS/inca2\nimgmount d \"./eXoDOS/inca2/cd/Inca II - Wiracocha.cue\" -t cdrom\n@c:\nmreset\ncls\n@inca2\nexit\n\ncls\nmount c ./eXoDOS/DOOM\nc:\n@cls\n@call run"
+  "Autoexec": "",
+  "AutoexecEnabled": true
 }

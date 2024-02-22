@@ -1,0 +1,247 @@
+{
+  "junk-store-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "JunkStoreActions",
+      "Actions": [
+        {
+          "Id": "GetDosActions",
+          "Title": "dos games actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-actions"
+        }
+      ]
+    }
+  },
+  "junk-store-tabs": {
+    "Type": "StoreTabs",
+    "Content": {
+      "Tabs": [
+        { "Title": "Dos", "Type": "GameGrid", "ActionId": "GetDosActions" }
+      ]
+    }
+  },
+  "dos-game-script-actions": {
+    "Type": "ScriptSet",
+    "Content": {
+      "Actions": []
+    }
+  },
+  "dos-script-actions": {
+    "Type": "ScriptSet",
+    "Content": {
+      "Actions": [
+        {
+          "ActionId": "Refresh",
+          "Title": "Refresh Games List",
+          "Type": "ScriptAction",
+          "InstalledOnly": "False"
+        }
+      ]
+    }
+  },
+  "dos-exe-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "DosExeActions",
+      "Actions": [
+        {
+          "Id": "RunBinary",
+          "Title": "Run executable in game folder",
+          "Type": "ScriptAction",
+          "Command": "./scripts/junk-store.sh Dos run-exe"
+        },
+        {
+          "Id": "GetContent",
+          "Title": "Get executable list",
+          "Type": "Content",
+          "Command": "./scripts/junk-store.sh Dos get-exe-list"
+        }
+      ]
+    }
+  },
+  "dos-tab-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "EpicTabConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the ini files as json",
+          "Type": "IniEditor",
+          "Command": "./scripts/junk-store.sh Dos gettabconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the ini files as json",
+          "Type": "IniEditor",
+          "Command": "./scripts/junk-store.sh Dos savetabconfig"
+        }
+      ]
+    }
+  },
+  "dos-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "DosActions",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get dos games list",
+          "Type": "GameGrid",
+          "Command": "./scripts/junk-store.sh Dos getgames"
+        },
+        {
+          "Id": "GetDetails",
+          "Title": "Get game details",
+          "Type": "GameDetails",
+          "Command": "./scripts/junk-store.sh Dos getgamedetails"
+        },
+        {
+          "Id": "GetJsonImages",
+          "Title": "Get game images as json",
+          "Type": "GameImages",
+          "Command": "./scripts/junk-store.sh Dos getjsonimages"
+        },
+        {
+          "Id": "Install",
+          "Title": "Install game",
+          "Type": "Install",
+          "Command": "./scripts/junk-store.sh Dos install"
+        },
+        {
+          "Id": "Download",
+          "Title": "Download game",
+          "Type": "Download",
+          "Command": "./scripts/junk-store.sh Dos download"
+        },
+        {
+          "Id": "Uninstall",
+          "Title": "Uninstall game",
+          "Type": "Uninstall",
+          "Command": "./scripts/junk-store.sh Dos uninstall"
+        },
+        {
+          "Id": "GetProgress",
+          "Title": "Get install progress",
+          "Type": "GetProgress",
+          "Command": "./scripts/junk-store.sh Dos getprogress"
+        },
+        {
+          "Id": "GetLaunchOptions",
+          "Title": "Get launch options",
+          "Type": "GetLaunchOptions",
+          "Command": "./scripts/junk-store.sh Dos getlaunchoptions"
+        },
+        {
+          "Id": "CancelInstall",
+          "Title": "Cancel install",
+          "Type": "CancelInstall",
+          "Command": "./scripts/junk-store.sh Dos cancelinstall"
+        },
+        {
+          "Id": "GetExeActions",
+          "Title": "Get executable action set to run exe's in game dir",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-exe-actions"
+        },
+        {
+          "Id": "GetGameScriptActions",
+          "Title": "",
+          "Type": "ScriptActions",
+          "Command": "./scripts/get-json.py dos-game-script-actions"
+        },
+        {
+          "Id": "GetScriptActions",
+          "Title": "",
+          "Type": "ScriptActions",
+          "Command": "./scripts/get-json.py dos-script-actions"
+        },
+        {
+          "Id": "GetDosboxConfigFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-config-actions"
+        },
+        {
+          "Id": "GetPlatformConfigFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-platform-config-actions"
+        },
+        {
+          "Id": "GetBatFileActions",
+          "Title": "Get dosbox config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-bat-actions"
+        },
+        {
+          "Id": "Refresh",
+          "Title": "Refresh Games List",
+          "Type": "Refresh",
+          "Command": "./scripts/junk-store.sh Dos init"
+        }
+      ]
+    }
+  },
+  "dos-bat-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "DosBatEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos getbats"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos savebats"
+        }
+      ]
+    }
+  },
+  "dos-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "DosConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos getconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos saveconfig"
+        }
+      ]
+    }
+  },
+  "dos-platform-config-actions": {
+    "Type": "ActionSet",
+    "Content": {
+      "SetName": "DosPlatformConfigEditor",
+      "Actions": [
+        {
+          "Id": "GetContent",
+          "Title": "Get the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos getplatformconfig"
+        },
+        {
+          "Id": "SaveContent",
+          "Title": "Save the bat files as json",
+          "Type": "BatEditor",
+          "Command": "./scripts/junk-store.sh Dos saveplatformconfig"
+        }
+      ]
+    }
+  }
+}

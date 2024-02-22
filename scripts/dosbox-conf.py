@@ -15,16 +15,6 @@ import urllib.parse
 cols = database.cols
 
 
-def load_conf_data_from_json(json_file):
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-        for section in data['Sections']:
-            section['Name'] = section['Name'].lower()
-            for option in section['Options']:
-                option['Key'] = option['Key'].lower()
-        return data
-
-
 def parse_config_file(filepath):
     try:
         with open(filepath, 'r') as f:
@@ -48,35 +38,6 @@ def parse_config_file(filepath):
     except Exception as e:
         print(f"Error parsing config file: {filepath} {e}")
         return None, None
-
-
-def store_config_in_database(shortname, forkname, version, platform, sections, autoexec, db_file):
-    conn = sqlite3.connect(db_file)
-    c = conn.cursor()
-    config_set_id = 0
-    c.execute("select id from config_set where ShortName = ? AND forkname = ? AND version = ? AND platform = ?",
-              (shortname, forkname, version, platform))
-    row = c.fetchone()
-    if row is None:
-        c.execute("INSERT INTO config_set (ShortName, forkname, version, platform) VALUES (?, ?, ?, ?)",
-                  (shortname, forkname, version, platform))
-        config_set_id = c.lastrowid
-    else:
-        config_set_id = row[0]
-        c.execute("DELETE FROM configs WHERE config_set_id = ?",
-                  (config_set_id,))
-    for section, settings in sections.items():
-        for key, value in settings.items():
-            value = value.replace('$', '$$')
-            query = "INSERT INTO configs (section, key, value, config_set_id) VALUES (?, ?, ?, ?)"
-            params = (section, key, value, config_set_id)
-            c.execute(query, params)
-    autoexec = autoexec.replace('$', '$$')
-    query = "INSERT INTO configs (section, key, value, config_set_id) VALUES (?, ?, ?, ?)"
-    params = ('autoexec', 'text', autoexec, config_set_id)
-    c.execute(query, params)
-    conn.commit()
-    conn.close()
 
 
 def get_config(shortnames, forkname, version, platform, db_file):
@@ -119,68 +80,6 @@ def get_config(shortnames, forkname, version, platform, db_file):
     conn.close()
 
 
-def find_section(config_data, section_name):
-    for section in config_data['Sections']:
-        if section['Name'] == section_name:
-            return section
-    return None
-
-
-def find_option(section, key):
-    for option in section['Options']:
-        if option['Key'] == key:
-            return option
-    return None
-
-
-def get_config_json(shortnames, forkname, version, platform, db_file):
-    config_data = load_conf_data_from_json(
-        os.path.expanduser(
-            os.path.join(
-                os.environ.get('$DECKY_PLUGIN_RUNTIME_DIR', ""),
-                'dosbox-conf/staging_conf.json')))
-    conn = sqlite3.connect(db_file)
-    c = conn.cursor()
-
-    autoexec_text = ""
-    id = 0
-    parent_name = "default"
-    for shortname in shortnames:
-        c.execute("""SELECT config_set.id from config_Set
-                WHERE config_set.ShortName = ? AND (config_set.forkname = '' or config_set.forkname = ?) AND 
-                (config_set.version = '' or config_set.version = ?) AND 
-                (config_set.platform = '' or config_set.platform = ?)
-                order by config_set.platform desc, config_set.forkname desc, config_set.version desc""", (shortname, forkname, version, platform))
-        row = c.fetchone()
-        id = row[0]
-        c.execute(
-            """SELECT config_set.ShortName, configs.section, configs.key, configs.value FROM configs 
-            JOIN config_set ON configs.config_set_id = config_set.id 
-            WHERE config_set.id = ? AND 
-            configs.section != 'autoexec'""", (id,))
-        for row in c.fetchall():
-            _, section, key, value = row
-            section = find_section(config_data, section)
-            if section is not None:
-                option = find_option(section, key)
-                if option is not None:
-                    if parent_name != "default":
-                        option['Parents'] = [
-                            {'Parent': parent_name, 'Value': value}] + option['Parents']
-                    option['Value'] = value
-        c.execute(
-            """SELECT value FROM configs JOIN config_set ON configs.config_set_id = config_set.id 
-            WHERE config_set.id = ? AND 
-            configs.section = 'autoexec' AND configs.key = 'text'""", (id,))
-        row = c.fetchone()
-        if row is not None:
-            autoexec_text += row[0]
-        parent_name = shortname
-    config_data['Autoexec'] = autoexec_text
-    conn.close()
-    return json.dumps({'Type': 'IniContent', 'Content': config_data})
-
-
 def update_bat_files(db_file, shortname, batfiles):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
@@ -198,50 +97,6 @@ def update_bat_files(db_file, shortname, batfiles):
             else:
                 c.execute("UPDATE BatFiles SET Content = ? WHERE id = ?",
                           (batfile['Content'], row[0]))
-    conn.commit()
-    conn.close()
-    return json.dumps({'Type': 'Success', 'Content': {'success': True}})
-
-
-def parse_json_store_in_database(shortname, forkname, version, platform, config_data, db_file):
-    # filename = os.path.expanduser(f"~/{shortname}_{platform}_{forkname}.json")
-    # with open(filename, 'w') as f:
-    #     json.dump(config_data, f)
-    conn = sqlite3.connect(db_file)
-    c = conn.cursor()
-    config_set_id = 0
-    c.execute("select id from config_set where ShortName = ? AND forkname = ? AND version = ? AND platform = ?",
-              (shortname, forkname, version, platform))
-    row = c.fetchone()
-    if row is None:
-        c.execute("INSERT INTO config_set (ShortName, forkname, version, platform) VALUES (?, ?, ?, ?)",
-                  (shortname, forkname, version, platform))
-        config_set_id = c.lastrowid
-    else:
-        config_set_id = row[0]
-        c.execute("DELETE FROM configs WHERE config_set_id = ?",
-                  (config_set_id,))
-    for section in config_data['Sections']:
-        for option in section['Options']:
-            value = option['Value']
-            value = value.replace('$', '$$')
-            shouldUpdate = True
-            if (option['Value'] == option['DefaultValue']):
-                shouldUpdate = False
-
-            if (option['Parents'] and len(option['Parents']) > 0 and option['Parents'][0]['Value'] == option['Value']
-                    and option['Parents'][0]['Parent'] != 'default'):
-                shouldUpdate = False
-            if (shouldUpdate):
-                query = "INSERT INTO configs (section, key, value, config_set_id) VALUES (?, ?, ?, ?)"
-                params = (section['Name'], option['Key'], value, config_set_id)
-                c.execute(query, params)
-                conn.commit()
-    autoexec = config_data['Autoexec']
-    autoexec = autoexec.replace('$', '$$')
-    query = "INSERT INTO configs (section, key, value, config_set_id) VALUES (?, ?, ?, ?)"
-    params = ('autoexec', 'text', autoexec, config_set_id)
-    c.execute(query, params)
     conn.commit()
     conn.close()
     return json.dumps({'Type': 'Success', 'Content': {'success': True}})
@@ -661,7 +516,7 @@ def main():
     database.create_tables(args.dbfile)
     if args.parsejson:
         config_data = read_json_from_stdin()
-        print(parse_json_store_in_database(
+        print(database.parse_json_store_in_database(
             args.parsejson, args.forkname, args.version, args.platform, config_data, args.dbfile))
     if args.updatebats:
         batfiles = read_json_from_stdin()
@@ -670,7 +525,7 @@ def main():
         get_config(
             args.conf, args.forkname, args.version, args.platform, args.dbfile)
     if args.confjson:
-        print(get_config_json(
+        print(database.get_config_json(
             args.confjson, args.forkname, args.version, args.platform, args.dbfile))
     if args.getgameswithimages:
         filter = ""
