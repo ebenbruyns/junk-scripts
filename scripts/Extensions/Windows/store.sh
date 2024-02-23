@@ -57,7 +57,7 @@ function Windows_getgames(){
     echo $TEMP
 }
 function Windows_saveconfig(){
-  get_env_settings "${1}"
+    get_env_settings "${1}"
    
     if [[ -z "${DOS_FORKNAME}" ]]; then
         FORKNAME="staging"
