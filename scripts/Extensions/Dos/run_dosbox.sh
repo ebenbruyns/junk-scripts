@@ -28,5 +28,9 @@ case $DOS_FORKNAME in
         DOSBOX="/bin/flatpak run com.dosbox_x.DOSBox-X"
         ;;
 esac
-
+echo "DOSBOX: ${DOSBOX} $@" 
 run_dosbox $@
+
+#run other exe
+
+# dosbox -noautoexec -c "mount c ." -c "c:\DOOM\SETUP.EXE" -c "exit" 

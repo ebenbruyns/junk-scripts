@@ -63,7 +63,7 @@
   "dos-tab-config-actions": {
     "Type": "ActionSet",
     "Content": {
-      "SetName": "EpicTabConfigEditor",
+      "SetName": "DosTabConfigEditor",
       "Actions": [
         {
           "Id": "GetContent",
@@ -168,6 +168,12 @@
           "Title": "Get dosbox config file actions",
           "Type": "Init",
           "Command": "./scripts/get-json.py dos-platform-config-actions"
+        },
+        {
+          "Id": "GetTabConfigActions",
+          "Title": "Get dos tab config file actions",
+          "Type": "Init",
+          "Command": "./scripts/get-json.py dos-tab-config-actions"
         },
         {
           "Id": "GetBatFileActions",

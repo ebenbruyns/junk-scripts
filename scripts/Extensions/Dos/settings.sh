@@ -7,15 +7,22 @@ HOSTTYPE=deck
 # add miniconda to path
 PATH=$HOME/miniconda3/bin:$PATH
 # the path to the dosbox-conf.py script
-DOSCONF="${DECKY_PLUGIN_DIR}/scripts/dosbox-conf.py"
-EPICCONF="${DECKY_PLUGIN_DIR}/scripts/epic-config.py"
+DOSCONF="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/shared/dosbox-conf.py"
 BASE_PATH="Games/exo"
 ASSETS_PATH="assets/exo"
+
+export PYTHONPATH="${DECKY_PLUGIN_DIR}/scripts":"${DECKY_PLUGIN_DIR}/scripts/shared":"${DECKY_PLUGIN_RUNTIME_DIR}/scripts/shared/":"${DECKY_PLUGIN_RUNTIME_DIR}/scripts/Extensions/Dos":$PYTHONPATH
 #LEGENDARY="${HOME}/miniconda3/bin/legendary"
 
     
 # the install location of the games
-INSTALL_DIR="${HOME}/Games/sdos/"
+if [[ "${DOS_INSTALLLOCATION}" == "SSD" ]]; then
+    INSTALL_DIR="${HOME}/Games/sdos/"
+elif [[ "${DOS_INSTALLLOCATION}" == "MicroSD" ]]; then
+    INSTALL_DIR="/run/media/mmcblk0p1/Games/sdos/"
+else
+    INSTALL_DIR="${HOME}/Games/sdos/"
+fi
 # the launcher script to use in steam
 LAUNCHER="${DECKY_PLUGIN_RUNTIME_DIR}/scripts/${Extensions}/Dos/run_dosbox.sh"
 IMAGES="Images/MS-DOS"
@@ -82,6 +89,19 @@ function run_dosbox(){
     echo "$extip" >  "${INSTALL_DIR}/${1}/ExtIP.txt"
     ipaddress=`ip -4 -o addr show up primary scope global | sed -e "s|^.*inet \(.*\)/.*|\1\r|"`
     echo "$ipaddress" >  "${INSTALL_DIR}/${1}/ExtIP2.txt"
+    echo "param 2: ${2}"
 
-    $DOSBOX
+    if [[ "${2}"  == "" ]]; then
+        echo "run autoexec"
+        $DOSBOX
+    else
+       
+        echo "run custom exe, skip autoexec"
+
+        EXE=$(echo -e "${2}") 
+        # | sed 's/\\/\\\\/g')
+        echo -e "EXE: ${EXE}"
+        cd $INSTALL_DIR
+        $DOSBOX -noautoexec -c "mount c ./${1}" -c "${EXE}" -c "exit"
+    fi
 }

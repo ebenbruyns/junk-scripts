@@ -12,6 +12,11 @@ if [[ "${PLATFORM}" == "Dos" ]]; then
     source "${DECKY_PLUGIN_RUNTIME_DIR}/scripts/${Extensions}/Dos/settings.sh"
 fi
 
+function Dos_init(){
+    if [[ ! -f "${DECKY_PLUGIN_RUNTIME_DIR}/${DBNAME}" ]]; then
+        cp "${DECKY_PLUGIN_RUNTIME_DIR}/dbs/${DBNAME}" "${DECKY_PLUGIN_RUNTIME_DIR}/${DBNAME}"
+    fi
+}
 
 function get_env_settings(){
    
@@ -97,7 +102,7 @@ function Dos_cancelinstall(){
           
     
     rm "${DECKY_PLUGIN_LOG_DIR}/${1}.pid"
-    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Cancelled\"}}"
+    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"${1} installaion cancelled\"}}"
 }
 
 function Dos_download(){
@@ -159,6 +164,8 @@ function Dos_install(){
     ZIPFILE=$($DOSCONF --getzip "${1}" --dbfile $DBFILE)
     mkdir -p "${INSTALL_DIR}"
     cd "${INSTALL_DIR}"
+    echo "unzipping ${ZIPFILE}" &>> "${DECKY_PLUGIN_LOG_DIR}/${1}.log"
+    echo "unzipping to ${INSTALL_DIR}" &>> "${DECKY_PLUGIN_LOG_DIR}/${1}.log"
     case $SOURCE in
         local)
             unzip -o "${ZIP_DIR}/${ZIPFILE}" &>> "${DECKY_PLUGIN_LOG_DIR}/${1}.log"
@@ -238,7 +245,7 @@ function Dos_run-exe(){
     eval "${SETTINGS}"
     STEAM_ID="${1}"
     GAME_SHORTNAME="${2}"
-    GAME_EXE="${3}"
+    GAME_EXE=$(echo "${3}" | sed 's/\\/\\\\/g' )
     ARGS="${4}"
     if [[ $4 == true ]]; then
         ARGS="some value"
@@ -247,7 +254,7 @@ function Dos_run-exe(){
     fi
     COMPAT_TOOL="${5}"
     GAME_PATH=$($EPICCONF --get-game-dir $GAME_SHORTNAME --dbfile $DBFILE --offline)
-    launchoptions "\\\"${GAME_PATH}/${GAME_EXE}\\\""  "${ARGS}  &> ${DECKY_PLUGIN_LOG_DIR}/run-exe.log" "${3}" "Protontricks" true "${COMPAT_TOOL}"
+    launchoptions "${LAUNCHER}"  "${GAME_SHORTNAME} ${GAME_EXE}  &> ${DECKY_PLUGIN_LOG_DIR}/${2}run-exe.log" "${INSTALL_DIR}" "RunExe" true "${COMPAT_TOOL}"
 }
 
 function Dos_get-exe-list(){
@@ -256,13 +263,13 @@ function Dos_get-exe-list(){
     GAME_SHORTNAME="${2}"
     cd $INSTALL_DIR
     cd $2
-    LIST=$(find . -iname "*.exe")
+    LIST=$(find . \( -iname "*.exe" -o -iname "*.bat" -o -iname "*.com" \))
     JSON="{\"Type\": \"FileContent\", \"Content\": {\"Files\": ["
     for FILE in $LIST; do
         
         JSON="${JSON}{\"Path\": \"${FILE}\"},"
     done
-    JSON=$(echo "$JSON" | sed 's/,$//')
+    JSON=$(echo "$JSON" | sed 's/,$//' | sed 's/\.\//c:\\\\/g' | sed 's/\//\\\\/g' ) 
     JSON="${JSON}]}}"
     echo $JSON
 }
@@ -295,6 +302,6 @@ function Dos_gettabconfig(){
 function Dos_savetabconfig(){
     
     cat > "${DECKY_PLUGIN_RUNTIME_DIR}/conf_schemas/dostabconfig.json"
-    echo "{\"Type\": \"Success\", \"Content\": {\"success\": \"True\"}}"
+    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Dos Tab Config Saved\"}}"
     
 }

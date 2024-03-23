@@ -12,6 +12,14 @@ if [[ "${PLATFORM}" == "Windows" ]]; then
     source "${DECKY_PLUGIN_RUNTIME_DIR}/scripts/${Extensions}/Windows/settings.sh"
 fi
 
+
+function Windows_init(){
+    if [[ ! -f "${DECKY_PLUGIN_RUNTIME_DIR}/${DBNAME}" ]]; then
+        cp "${DECKY_PLUGIN_RUNTIME_DIR}/dbs/${DBNAME}" "${DECKY_PLUGIN_RUNTIME_DIR}/${DBNAME}"
+    fi
+}
+
+
 function get_env_settings(){
    
     SETTINGS=$($DOSCONF --get-env-settings $1 --dbfile $DBFILE --platform dos --forkname "" --version "")
@@ -100,7 +108,7 @@ function Windows_cancelinstall(){
           
     
     rm "${DECKY_PLUGIN_LOG_DIR}/${1}.pid"
-    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Cancelled\"}}"
+    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"${1} installation cancelled\"}}"
 }
 
 function Windows_download(){
@@ -236,7 +244,6 @@ function Windows_savesetting(){
     $DOSCONF --savesetting $1 $2 --dbfile $DBFILE
 }   
 
-
 function Windows_run-exe(){
     get_steam_env  
     SETTINGS=$($EPICCONF --get-env-settings $ID --dbfile $DBFILE)
@@ -244,7 +251,7 @@ function Windows_run-exe(){
     eval "${SETTINGS}"
     STEAM_ID="${1}"
     GAME_SHORTNAME="${2}"
-    GAME_EXE="${3}"
+    GAME_EXE=$(echo "${3}" | sed 's/\\/\\\\/g' )
     ARGS="${4}"
     if [[ $4 == true ]]; then
         ARGS="some value"
@@ -253,7 +260,7 @@ function Windows_run-exe(){
     fi
     COMPAT_TOOL="${5}"
     GAME_PATH=$($EPICCONF --get-game-dir $GAME_SHORTNAME --dbfile $DBFILE --offline)
-    launchoptions "\\\"${GAME_PATH}/${GAME_EXE}\\\""  "${ARGS}  &> ${DECKY_PLUGIN_LOG_DIR}/run-exe.log" "${3}" "Protontricks" true "${COMPAT_TOOL}"
+    launchoptions "${LAUNCHER}"  "${GAME_SHORTNAME} ${GAME_EXE}  &> ${DECKY_PLUGIN_LOG_DIR}/${2}run-exe.log" "${INSTALL_DIR}" "RunExe" true "${COMPAT_TOOL}"
 }
 
 function Windows_get-exe-list(){
@@ -262,16 +269,18 @@ function Windows_get-exe-list(){
     GAME_SHORTNAME="${2}"
     cd $INSTALL_DIR
     cd $2
-    LIST=$(find . -iname "*.exe")
+    
+    LIST=$(find . \( -iname "*.exe" -o -iname "*.bat" -o -iname "*.com" \) -not \( -ipath "./windows/*" \) -not -ipath "./apps/*" -not -ipath "./sb16/*" )
     JSON="{\"Type\": \"FileContent\", \"Content\": {\"Files\": ["
     for FILE in $LIST; do
         
         JSON="${JSON}{\"Path\": \"${FILE}\"},"
     done
-    JSON=$(echo "$JSON" | sed 's/,$//')
+    JSON=$(echo "$JSON" | sed 's/,$//' | sed 's/\.\///g' | sed 's/\//\\\\/g' ) 
     JSON="${JSON}]}}"
     echo $JSON
 }
+
 
 
 function Windows_getjsonimages(){
@@ -293,6 +302,6 @@ function Windows_gettabconfig(){
 function Windows_savetabconfig(){
     
     cat > "${DECKY_PLUGIN_RUNTIME_DIR}/conf_schemas/windowstabconfig.json"
-    echo "{\"Type\": \"Success\", \"Content\": {\"success\": \"True\"}}"
+    echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Windows tab config saved\"}}"
     
 }
