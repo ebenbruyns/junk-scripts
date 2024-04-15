@@ -44,6 +44,9 @@ class DosArgs(GameSet.GenericArgs):
             '--get-base64-images', nargs=2, help='Get base64 images for short name'
         )
 
+        self.parser.add_argument(
+            '--get-game-size', nargs=3, help='Get game size')
+
     def parseArgs(self):
         super().parseArgs()
         self.gameSet = dosbox.Dosbox(self.args.dbfile, self.setNameConfig)
@@ -90,6 +93,9 @@ class DosArgs(GameSet.GenericArgs):
                 urlencode = False
             print(self.gameSet.get_base64_images(
                 self.args.get_base64_images[0], self.args.get_base64_images[1], urlencode))
+        if self.args.get_game_size:
+            print(self.gameSet.get_game_size(
+                self.args.get_game_size[0], self.args.get_game_size[1], self.args.get_game_size[2]))
 
         if not any(vars(self.args).values()):
             self.parser.print_help()

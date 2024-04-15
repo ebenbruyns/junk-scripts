@@ -92,6 +92,12 @@
           "Command": "./scripts/junk-store.sh Dos getgames"
         },
         {
+          "Id": "GetGameSize",
+          "Title": "Get game size",
+          "Type": "GameSize",
+          "Command": "./scripts/junk-store.sh Dos getgamesize"
+        },
+        {
           "Id": "GetDetails",
           "Title": "Get game details",
           "Type": "GameDetails",

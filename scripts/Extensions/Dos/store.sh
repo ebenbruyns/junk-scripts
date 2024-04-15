@@ -305,3 +305,30 @@ function Dos_savetabconfig(){
     echo "{\"Type\": \"Success\", \"Content\": {\"Message\": \"Dos Tab Config Saved\"}}"
     
 }
+function Dos_getgamesize(){
+    case $SOURCE in
+        archive)
+            ZIPFILE=$($DOSCONF --getzip "${1}" --dbfile $DBFILE --urlencode)
+            ;;
+        *)
+            ZIPFILE=$($DOSCONF --getzip "${1}" --dbfile $DBFILE)
+            ;;
+    esac
+    case $SOURCE in
+        local)
+            URL="${ZIP_DIR}/${ZIPFILE}"
+            ;;
+        lan)
+            URL="${ZIP_DIR}/${ZIPFILE}"
+            ;;           
+        archive)
+            URL="${ZIP_DIR}/${ZIPFILE}"
+            
+            ;;
+        *)  echo "Unknown source: $SOURCE"
+            exit 1
+            ;;
+    esac
+    TEMP=$($DOSCONF --get-game-size "${1}" "${URL}" "${2}" --dbfile $DBFILE)
+    echo $TEMP
+}

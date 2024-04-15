@@ -19,6 +19,8 @@ import sqlite3
 import json
 import urllib.parse
 import dosbox
+import requests
+import os
 
 
 class Dosbox (GameSet.GameSet):
@@ -125,13 +127,14 @@ class Dosbox (GameSet.GameSet):
     def write_bat_files(self,  shortname):
         conn = self.get_connection()
         c = conn.cursor()
+        c.row_factory = sqlite3.Row
         c.execute("""select id, GameId, Path, content from batfiles where GameId = (select id from game where shortname = ?)""", (shortname,))
         rows = c.fetchall()
         for row in rows:
-            id = row[0]
-            gameId = row[1]
-            path = row[2]
-            content = row[3]
+            id = row['id']
+            gameId = row['GameId']
+            path = row['Path']
+            content = row['content']
             dir = os.path.dirname(path)
             print(f"Writing {dir}")
             print(f"Writing {path}")
@@ -144,14 +147,15 @@ class Dosbox (GameSet.GameSet):
     def get_json_bat_files(self, shortname):
         conn = self.get_connection()
         c = conn.cursor()
+        c.row_factory = sqlite3.Row
         c.execute("""select id, GameId, Path, content from batfiles where GameId = (select id from game where shortname = ?)""", (shortname,))
         rows = c.fetchall()
         result = []
         for row in rows:
-            id = row[0]
-            gameId = row[1]
-            path = row[2]
-            content = row[3]
+            id = row['id']
+            gameId = row['GameId']
+            path = row['Path']
+            content = row['content']
             result.append({'Id': id, 'GameId': gameId,
                            'Path': path, 'Content': content})
         return json.dumps({'Type': 'FileContent', 'Content': {'Files': result}})
@@ -251,3 +255,53 @@ class Dosbox (GameSet.GameSet):
             time.sleep(1)
 
         return json.dumps({'Type': 'ProgressUpdate', 'Content': last_progress_update})
+    
+    def get_file_size(self, url):
+        print(f"Getting size for {url}", file=sys.stderr)
+        if url.startswith("http"):
+            response = requests.head(url, allow_redirects=True)
+            if response.status_code == 200:
+                size = response.headers.get('content-length')
+                
+                size = self.convert_bytes( int(size))
+                size = f"Download Size: {size}"
+                print(f"Size is {size}", file=sys.stderr)
+            else:
+                print(f"Error getting size {response.headers}", file=sys.stderr)
+                size = ""
+        else:
+            size = ""
+            if os.path.isfile(url):
+                size = os.path.getsize(url)
+                size = self.convert_bytes(size)
+                size = f"File Size: {size}"
+            else:
+                size = ""
+        return size
+
+    def get_game_size(self, game_id, url, installed):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.row_factory = sqlite3.Row
+        result = None
+        size = ""
+        
+        c.execute("SELECT Size FROM Game WHERE ShortName=?", (game_id,))
+        result = c.fetchone()
+        
+        if result and bool(result['Size']):
+            disk_size = result['Size']
+            size = f"Size on Disk: {disk_size}"
+        else:
+            
+
+            size = self.get_file_size(url)
+        
+        if result is None:
+            print(f"caching file size {size} for {game_id}")
+            c.execute(
+                    "UPDATE Game SET Size=? WHERE ShortName=?", 
+                    ( size, game_id))
+        conn.commit()
+        conn.close()
+        return json.dumps({'Type': 'GameSize', 'Content': {'Size': size }})
