@@ -19,11 +19,14 @@ import sqlite3
 import json
 import urllib.parse
 import dosbox
-import requests
+import urllib.request
 import os
 
 
 class Dosbox (GameSet.GameSet):
+    def __init__(self, db_file, storeName="", setNameConfig=None):
+        super().__init__(db_file, storeName, setNameConfig)
+
 
     def parse_config_file(self, filepath):
         try:
@@ -48,6 +51,13 @@ class Dosbox (GameSet.GameSet):
         except Exception as e:
             print(f"Error parsing config file: {filepath} {e}")
             return None, None
+    def add_missing_config_sets(self):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.execute("insert into config_set (ShortName, Platform)  SELECT ShortName, 'dos' FROM Game WHERE ShortName NOT IN (SELECT ShortName FROM config_Set where Platform = 'dos')")
+       
+        conn.commit()
+        conn.close()
 
     def store_config_in_database(self, shortname, forkname, version, platform, sections, autoexec):
         conn = self.get_connection()
@@ -259,8 +269,10 @@ class Dosbox (GameSet.GameSet):
     def get_file_size(self, url):
         print(f"Getting size for {url}", file=sys.stderr)
         if url.startswith("http"):
-            response = requests.head(url, allow_redirects=True)
-            if response.status_code == 200:
+            response = urllib.request.urlopen(url)
+
+            #response = urllib.request.head(url, allow_redirects=True)
+            if response.status == 200:
                 size = response.headers.get('content-length')
                 
                 size = self.convert_bytes( int(size))

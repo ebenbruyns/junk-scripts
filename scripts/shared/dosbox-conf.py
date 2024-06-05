@@ -49,8 +49,9 @@ class DosArgs(GameSet.GenericArgs):
 
     def parseArgs(self):
         super().parseArgs()
-        self.gameSet = dosbox.Dosbox(self.args.dbfile, self.setNameConfig)
+        self.gameSet = dosbox.Dosbox(self.args.dbfile, setNameConfig=self.setNameConfig)
         self.gameSet.create_tables()
+        self.gameSet.add_missing_config_sets()
 
     def processArgs(self):
         super().processArgs()
@@ -103,7 +104,7 @@ class DosArgs(GameSet.GenericArgs):
 
 def main():
 
-    dosProcessor = DosArgs("dos")
+    dosProcessor = DosArgs(setNameConfig="dos")
     dosProcessor.parseArgs()
     dosProcessor.processArgs()
 
